@@ -562,6 +562,11 @@ canvas.addEventListener('click', function (e) {
     handleInput();
 });
 
+canvas.addEventListener('touchstart', function (e) {
+    e.preventDefault(); // Prevent scrolling/zooming
+    handleInput();
+}, { passive: false });
+
 // Initial Visibility Setup
 // Handled by resetGame()
 // Handled by resetGame()

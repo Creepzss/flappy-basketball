@@ -26,6 +26,7 @@ canvas {
     border: 4px solid #000;
     box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.5);
     image-rendering: pixelated;
+    touch-action: none;
 }
 
 #ui-layer {
