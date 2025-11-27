@@ -435,15 +435,26 @@ function update() {
 }
 
 // Game Loop
-function loop() {
-    update();
-    draw();
-    frames++;
+// Game Loop
+let lastTime = 0;
+const fps = 60;
+const interval = 1000 / fps;
+
+function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const deltaTime = timestamp - lastTime;
+
+    if (deltaTime >= interval) {
+        update();
+        draw();
+        frames++;
+        lastTime = timestamp - (deltaTime % interval);
+    }
 
     requestAnimationFrame(loop);
 }
 
-loop();
+requestAnimationFrame(loop);
 
 // Initialize High Score Display
 document.getElementById('best-score').innerText = score.best;
