@@ -551,21 +551,26 @@ function renderSkinsGrid() {
 document.getElementById('btn-settings').addEventListener('click', () => console.log('Settings clicked'));
 
 // Input Handling
+// Input Handling
+function onInput(e) {
+    // Ignore input if clicking on a button or skin option
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.closest('.skin-option')) return;
+
+    if (e.type === 'touchstart') {
+        e.preventDefault(); // Prevent scrolling/zooming
+    }
+
+    handleInput();
+}
+
+window.addEventListener('mousedown', onInput);
+window.addEventListener('touchstart', onInput, { passive: false });
+
 window.addEventListener('keydown', function (e) {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
         handleInput();
     }
 });
-
-canvas.addEventListener('click', function (e) {
-    // Prevent double input if clicking UI elements (though pointer-events should handle this)
-    handleInput();
-});
-
-canvas.addEventListener('touchstart', function (e) {
-    e.preventDefault(); // Prevent scrolling/zooming
-    handleInput();
-}, { passive: false });
 
 // Initial Visibility Setup
 // Handled by resetGame()

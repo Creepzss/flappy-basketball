@@ -658,3 +658,6 @@ button:active {
     background-color: rgba(46, 204, 113, 0.2);
     box-shadow: 0 0 10px #2ecc71;
 }
+#get-ready-message {
+    pointer-events: none !important;
+}
