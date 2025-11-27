@@ -25,10 +25,10 @@ function createPixelArt(width, height, pixelScale, drawFn) {
 const skins = {};
 
 function createBallSprite(type) {
-    return createPixelArt(36, 36, 1, (ctx, w, h, s) => {
+    return createPixelArt(32, 32, 1, (ctx, w, h, s) => {
         const cx = w / 2;
         const cy = h / 2;
-        const r = 16.5; // Radius increased (11 * 1.5 = 16.5)
+        const r = 14.5; // Adjusted for 32px size
 
         ctx.save();
         ctx.beginPath();
@@ -280,9 +280,9 @@ const score = {
 const basketball = {
     x: 50,
     y: 150,
-    w: 36, // Increased from 24
-    h: 36, // Increased from 24
-    radius: 18, // Increased from 12
+    w: 32, // Decreased to 32
+    h: 32, // Decreased to 32
+    radius: 16, // Decreased to 16
     speed: 0,
     gravity: 0.25,
     jump: 4.6,
@@ -299,22 +299,22 @@ const basketball = {
         ctx.closePath();
         ctx.clip();
 
-        ctx.drawImage(sprite, -18, -18, 36, 36); // Adjusted for new size
+        ctx.drawImage(sprite, -16, -16, 32, 32); // Adjusted for new size
 
         ctx.restore();
     },
 
-    update: function () {
+    update: function (timeScale) {
         // Period
         if (state.current == state.getReady || state.current == state.menu) {
             this.y = 150; // Keep stationary-ish
             this.rotation += 1 * degree;
         } else {
-            this.speed += this.gravity;
-            this.y += this.speed;
+            this.speed += this.gravity * timeScale;
+            this.y += this.speed * timeScale;
 
             // Rotation effect
-            this.rotation += (this.speed * 2) * degree;
+            this.rotation += (this.speed * 2) * degree * timeScale;
 
             // Collision with floor
             if (this.y + this.radius >= canvas.height) {
@@ -339,6 +339,7 @@ const pipes = {
     h: 400,
     gap: 100,
     dx: 2,
+    spawnTimer: 0,
 
     draw: function () {
         for (let i = 0; i < this.position.length; i++) {
@@ -354,11 +355,13 @@ const pipes = {
         }
     },
 
-    update: function () {
+    update: function (timeScale) {
         if (state.current !== state.game) return;
 
-        // Add new pipe
-        if (frames % 100 == 0) {
+        // Add new pipe (Timer based)
+        this.spawnTimer += timeScale;
+        if (this.spawnTimer >= 100) { // Approx 100 frames at 60fps
+            this.spawnTimer = 0;
             this.position.push({
                 x: canvas.width,
                 y: -150 * (Math.random() + 1)
@@ -398,7 +401,7 @@ const pipes = {
             }
 
             // Move pipes
-            p.x -= this.dx;
+            p.x -= this.dx * timeScale;
 
             // Remove pipes
             if (p.x + this.w <= 0) {
@@ -429,27 +432,30 @@ function draw() {
 }
 
 // Update Loop
-function update() {
-    basketball.update();
-    pipes.update();
+function update(timeScale) {
+    basketball.update(timeScale);
+    pipes.update(timeScale);
 }
 
 // Game Loop
 // Game Loop
 let lastTime = 0;
-const fps = 60;
-const interval = 1000 / fps;
+const TARGET_FPS = 60;
+const OPTIMAL_TIME = 1000 / TARGET_FPS;
 
 function loop(timestamp) {
     if (!lastTime) lastTime = timestamp;
     const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
 
-    if (deltaTime >= interval) {
-        update();
-        draw();
-        frames++;
-        lastTime = timestamp - (deltaTime % interval);
-    }
+    // Cap deltaTime to prevent huge jumps if tab is inactive
+    const cappedDelta = Math.min(deltaTime, 100);
+
+    const timeScale = cappedDelta / OPTIMAL_TIME;
+
+    update(timeScale);
+    draw();
+    frames++; // Still useful for animation cycles if any
 
     requestAnimationFrame(loop);
 }
