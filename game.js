@@ -338,7 +338,7 @@ const pipes = {
     w: 64, // Updated width: 16 units * 4 scale = 64px
     h: 400,
     gap: 100,
-    dx: 2,
+    dx: 2.3,
     spawnTimer: 0,
 
     draw: function () {
